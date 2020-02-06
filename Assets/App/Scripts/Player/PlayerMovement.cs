@@ -10,7 +10,16 @@ namespace SpaceShooterPlus.Player
     public class PlayerMovement : MonoBehaviour
     {
         [SerializeField]
+        private double shotCooldown = 0.200;
+
+        [SerializeField]
         private float movementSpeed = 10;
+
+        [SerializeField]
+        private GameObject bulletPrefab;
+
+        [SerializeField]
+        private Transform bulletSpawnPoint;
 
         [SerializeField]
         private Collider boundary;
@@ -38,6 +47,19 @@ namespace SpaceShooterPlus.Player
                     position.y = Mathf.Clamp(position.y + v.y, boundary.bounds.min.y, boundary.bounds.max.y);
                     player.transform.position = position;
                 }).AddTo(this);
+
+            this.OnFireAsObservable()
+                .Select(x =>
+                {
+                    //Debug.Log($"{nameof(OnFireAsObservable)}.Select()");
+                    return x;
+                })
+                .ThrottleFirst(TimeSpan.FromSeconds(shotCooldown))
+                .Subscribe(_ =>
+                {
+                    var rotation = Quaternion.LookRotation(Vector3.forward);
+                    Instantiate(bulletPrefab, bulletSpawnPoint.position, rotation);
+                }).AddTo(this);
         }
 
         private IObservable<Vector2> OnMoveAsObservable()
@@ -46,6 +68,15 @@ namespace SpaceShooterPlus.Player
 
             return this.UpdateAsObservable()
                 .WithLatestFrom(this.inputEventProvider.Move, (_, v) => v);
+        }
+
+        private IObservable<bool> OnFireAsObservable()
+        {
+            //Debug.Log($"{nameof(OnFireAsObservable)}()");
+
+            return this.UpdateAsObservable()
+                .WithLatestFrom(this.inputEventProvider.Fire, (_, b) => b)
+                .Where(b => b);
         }
     }
 }
