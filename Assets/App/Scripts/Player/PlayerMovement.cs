@@ -12,6 +12,9 @@ namespace SpaceShooterPlus.Player
         [SerializeField]
         private float movementSpeed = 10;
 
+        [SerializeField]
+        private Collider boundary;
+
         private Transform player;
         private InputEventProvider inputEventProvider;
 
@@ -31,8 +34,8 @@ namespace SpaceShooterPlus.Player
                 .Subscribe(v =>
                 {
                     var position = player.transform.position;
-                    position.x = position.x + v.x;
-                    position.y = position.y + v.y;
+                    position.x = Mathf.Clamp(position.x + v.x, boundary.bounds.min.x, boundary.bounds.max.x);
+                    position.y = Mathf.Clamp(position.y + v.y, boundary.bounds.min.y, boundary.bounds.max.y);
                     player.transform.position = position;
                 }).AddTo(this);
         }
