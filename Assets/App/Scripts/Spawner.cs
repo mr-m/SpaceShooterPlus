@@ -14,6 +14,8 @@ namespace SpaceShooterPlus
         [SerializeField]
         public float spawnInterval = 1;
 
+        public readonly Subject<GameObject> Spawned = new Subject<GameObject>();
+
         private void Start()
         {
             Observable.Timer(System.TimeSpan.FromSeconds(spawnInterval))
@@ -32,7 +34,9 @@ namespace SpaceShooterPlus
             };
 
             Quaternion spawnRotation = Random.rotation;
-            Instantiate(hazard, spawnPosition, spawnRotation);
+            var gameObject = Instantiate(hazard, spawnPosition, spawnRotation);
+
+            this.Spawned.OnNext(gameObject);
         }
     }
 }
