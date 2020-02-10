@@ -1,38 +1,90 @@
-using UnityEngine;
-using UnityEngine.UI;
 using UniRx;
+using UniRx.Triggers;
+using UnityEngine;
 
 namespace SpaceShooterPlus.LevelMvp
 {
-    public class LevelPresenter : MonoBehaviour
+    public class LevelPresenter
     {
-        [SerializeField]
-        private Text healthText;
+        private readonly LevelView view;
+        private readonly LevelModel model;
 
-        [SerializeField]
-        private Text deathText;
+        public System.IObservable<LevelModel> OnButtonClickAsObservable;
 
-        [SerializeField]
-        private int initialHealth = 3;
-
-        private LevelModel model;
-
-        private void Start()
+        public LevelPresenter(LevelView view, LevelModel model)
         {
-            Debug.Log("Start");
+            this.view = view;
+            this.model = model;
 
-            this.model = new LevelModel(initialHealth);
+            Debug.Log($"{nameof(LevelPresenter)}()");
 
             this.model.Health
-                .SubscribeToText(healthText, x => $"{x}\u2764");
+                .SubscribeToText(this.view.HealthText, x => $"\u2764 {x}");
 
-            this.model.IsDead
+            this.model.Score
+                .SubscribeToText(this.view.ScoreText, x => $"{x} \u2605");
+
+            this.model.IsPlaying
                 .Select(x => x)
                 .Subscribe(x =>
                 {
-                    Debug.Log($"IsDead: {x}");
-                    deathText.enabled = x;
+                    Debug.Log($"{nameof(this.model.IsPlaying)}: {x}");
+                    this.view.Player.SetActive(x);
+                    this.view.HazardSpawner.gameObject.SetActive(x);
+
+                    this.view.Background.gameObject.SetActive(!x);
+                    this.view.MenuButton.gameObject.SetActive(!x);
+                    this.view.RestartButton.gameObject.SetActive(!x);
                 });
+
+            this.model.IsDefeat
+                .Select(x => x)
+                .Subscribe(x =>
+                {
+                    Debug.Log($"{nameof(this.model.IsDefeat)}: {x}");
+                    this.view.DefeatText.gameObject.SetActive(x);
+                });
+
+            this.model.IsVictory
+                .Select(x => x)
+                .Subscribe(x =>
+                {
+                    Debug.Log($"{nameof(this.model.IsVictory)}: {x}");
+                    this.view.VictoryText.gameObject.SetActive(x);
+                });
+
+            this.view.Player.gameObject.OnTriggerEnterAsObservable()
+                .Where(other => other.gameObject.CompareTag("Enemy"))
+                .Subscribe(other =>
+                {
+                    this.model.Health.Value--;
+                    Object.Destroy(other.gameObject);
+                });
+
+            this.view.HazardSpawner.Spawned
+                .Subscribe(hazard => hazard
+                    .OnTriggerEnterAsObservable()
+                    .Where(other => other.gameObject.CompareTag("Bullet"))
+                    .Select(other => other.gameObject)
+                    .Subscribe(bullet =>
+                    {
+                        Debug.Log($"Destroyed {hazard} {bullet}");
+                        Object.Destroy(hazard);
+                        Object.Destroy(bullet);
+                        this.model.Score.Value++;
+                    }));
+
+            this.view.RestartButton.OnClickAsObservable()
+                .Subscribe(_ =>
+                {
+                    this.view.Player.gameObject.transform.position = Vector3.zero;
+                    this.model.Health.Value = this.model.InitialHealth.Value;
+                    this.model.Score.Value = 0;
+                });
+
+            this.OnButtonClickAsObservable = this.view.MenuButton
+                .OnClickAsObservable()
+                .Select(_ => this.model);
         }
     }
 }

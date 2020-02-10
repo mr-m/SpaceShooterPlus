@@ -4,16 +4,19 @@ using UnityEngine;
 namespace SpaceShooterPlus
 {
     [ExecuteAlways]
-    class ChildList : MonoBehaviour
+    public class ChildList : MonoBehaviour
     {
-        public List<GameObject> Children = new List<GameObject>();
+        public IReadOnlyList<GameObject> Children { get => this.children; }
 
-        private void Start()
+        [SerializeField]
+        private readonly List<GameObject> children = new List<GameObject>();
+
+        private void Awake()
         {
             this.UpdateChildrenList();
         }
 
-        private void Awake()
+        private void Start()
         {
             this.UpdateChildrenList();
         }
@@ -25,11 +28,11 @@ namespace SpaceShooterPlus
 
         private void UpdateChildrenList()
         {
-            this.Children.Clear();
+            this.children.Clear();
 
             foreach (Transform child in this.transform)
             {
-                this.Children.Add(child.gameObject);
+                this.children.Add(child.gameObject);
             }
         }
     }

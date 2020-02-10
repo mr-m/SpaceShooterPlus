@@ -1206,8 +1206,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1273330208}
   - component: {fileID: 1273330209}
+  - component: {fileID: 1273330210}
   m_Layer: 0
-  m_Name: LevelPresenter
+  m_Name: LevelManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1236,12 +1237,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 1273330207}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba81560804611ae489be465f1891dc35, type: 3}
+  m_Script: {fileID: 11500000, guid: d1dc1148c45342541b80f990ed2f4e40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthText: {fileID: 892306110}
-  deathText: {fileID: 1831797151}
-  initialHealth: 3
+  InitialHealth: 3
+  RequiredScore: 5
+--- !u!114 &1273330210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273330207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa75eff6d973e0543b245f6c76cc428f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Background: {fileID: 1922263038}
+  HealthText: {fileID: 892306110}
+  ScoreText: {fileID: 1964717417}
+  DefeatText: {fileID: 1831797151}
+  VictoryText: {fileID: 816759796}
+  MenuButton: {fileID: 1482800343}
+  RestartButton: {fileID: 1464108045}
+  Player: {fileID: 926718831}
+  HazardSpawner: {fileID: 2008220657}
 --- !u!1 &1788304395
 GameObject:
   m_ObjectHideFlags: 0
@@ -1329,7 +1350,7 @@ Transform:
   m_GameObject: {fileID: 1788304395}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 30, y: 14, z: 2}
+  m_LocalScale: {x: 30, y: 16, z: 2}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6
@@ -1397,6 +1418,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &926718831 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 540532826160484582, guid: 6290a097acde9f84c8b6cba1b9ae124c,
+    type: 3}
+  m_PrefabInstance: {fileID: 926718830}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &926718830
 PrefabInstance:
   m_ObjectHideFlags: 0

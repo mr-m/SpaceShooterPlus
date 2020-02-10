@@ -1,26 +1,37 @@
 using System;
-using UnityEngine;
-using UnityEngine.UI;
+using SpaceShooterPlus.MarkerMvp;
 using UniRx;
+using UnityEngine;
 
 namespace SpaceShooterPlus.MapMvp
 {
-    [ExecuteAlways]
-    [RequireComponent(typeof(ChildList))]
-    class MapPresenter : MonoBehaviour
+    public class MapPresenter
     {
-        public IObservable<Button> ViewMarkers;
+        private readonly MapView mapView;
+        private readonly MapModel mapModel;
+        public IObservable<MarkerModel> OnButtonClickAsObservable;
 
-        private void Start()
+        public MapPresenter(MapView view, MapModel model)
         {
-            var childList = GetComponent<ChildList>();
+            Debug.Log($"{nameof(MapPresenter)}.{nameof(MapPresenter)}()");
 
-            this.ViewMarkers = childList.Children
-                .ToObservable()
-                .Select(x => x.GetComponent<Button>());
+            this.mapView = view;
+            this.mapModel = model;
 
-            this.ViewMarkers
-                .Subscribe(x => Debug.Log(x)).AddTo(this);
+            var zip = Observable.Zip(
+                view.MarkerViews.ToObservable(),
+                model.MarkerModels.ToObservable(),
+                (x, y) =>
+                {
+                    Debug.Log($"Zip: {x} + {y}");
+                    return new MarkerPresenter(x, y);
+                });
+
+        this.OnButtonClickAsObservable = zip
+                .Select(x => x.OnButtonClickAsObservable)
+                .Concat();
+
+            zip.Subscribe();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -6,13 +7,17 @@ using UnityEngine.SceneManagement;
 
 using UniRx;
 
+using SpaceShooterPlus.LevelMvp;
 using SpaceShooterPlus.MapMvp;
 using SpaceShooterPlus.MarkerMvp;
+using SpaceShooterPlus.MarkerStates;
 
 namespace SpaceShooterPlus.GameMvp
 {
     public class GamePresenter : MonoBehaviour
     {
+        private MapModel mapModel;
+
         [SerializeField]
         private string saveFileLocation = "SaveGame.xml";
 
@@ -28,25 +33,75 @@ namespace SpaceShooterPlus.GameMvp
 
             await SceneManager.LoadSceneAsync("MapScene").AsObservable();
 
-            var mapPresenter = FindObjectOfType<MapPresenter>();
+            var mapView = FindObjectOfType<MapView>();
+            var mapModel = this.LoadMapModel() ?? this.MakeMapModel(mapView);
+            var mapPresenter = new MapPresenter(mapView, mapModel);
 
-            var markerViews = await mapPresenter.ViewMarkers.ToList();
+            this.mapModel = mapModel;
 
-            var mapModelLoaded = this.LoadMapModel();
-            var mapModelNew = new MapModel(mapPresenter.ViewMarkers);
-            var mapModel = mapModelLoaded ?? mapModelNew;
+            mapPresenter.OnButtonClickAsObservable
+                .Subscribe(async x =>
+                {
+                    Debug.Log($"{nameof(mapPresenter.OnButtonClickAsObservable)} {x}");
 
-            var markerModels = await mapModel.MarkerModels.ToList();
+                    await SceneManager.LoadSceneAsync("FightScene").AsObservable();
 
-            var zip = Observable.Zip(
-                markerViews.ToObservable(),
-                markerModels.ToObservable(),
-                (x, y) => new MarkerPresenter(x, y)
-            );
+                    var index = mapModel.MarkerModels.IndexOf(x);
+                    int requiredScore = 5 + (3 * index);
+                    int initialHealth = 3;
 
-            var markerPresenters = await zip.ToList();
+                    var levelManager = FindObjectOfType<LevelManager>();
+                    levelManager.RequiredScore = requiredScore;
+                    levelManager.InitialHealth = initialHealth;
 
-            //SaveGameModel(mapModel);
+                    levelManager.OnButtonClickAsObservable
+                        .Subscribe(y =>
+                        {
+                            SceneManager.UnloadSceneAsync("FightScene");
+                            x.Complete();
+                        });
+
+                    //var levelView = FindObjectOfType<LevelView>();
+                    //var levelModel = new LevelModel(requiredScore, initialHealth);
+                    //var levelPresenter = new LevelPresenter(levelView, levelModel);
+                });
+
+        }
+
+        private void OnDestroy()
+        {
+            //SaveMapModel(this.mapModel);
+        }
+
+        private IEnumerator LoadAsyncScene(string scene)
+        {
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(scene);
+
+            while (!asyncLoad.isDone)
+            {
+                yield return null;
+            }
+        }
+
+        private MapModel MakeMapModel(MapView mapView)
+        {
+            var mapModel = new MapModel();
+
+            int viewsCount = mapView.MarkerViews.Count;
+            if (viewsCount > 0)
+            {
+                //First level must be unlocked
+                var markerModel = new MarkerModel(new MarkerStateUnlocked());
+                mapModel.MarkerModels.Add(markerModel);
+            }
+            for (int i = 1; i < viewsCount; i++)
+            {
+                //Remaining levels should be locked
+                var markerModel = new MarkerModel(new MarkerStateLocked());
+                mapModel.MarkerModels.Add(markerModel);
+            }
+
+            return mapModel;
         }
 
         private MapModel LoadMapModel()
