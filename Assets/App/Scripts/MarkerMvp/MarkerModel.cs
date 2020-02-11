@@ -8,32 +8,34 @@ namespace SpaceShooterPlus.MarkerMvp
     [Serializable]
     public class MarkerModel : ISerializable
     {
-        public ReactiveProperty<IMarkerState> State { get; }
+        public IReadOnlyReactiveProperty<IMarkerState> State => this.state;
+
+        private readonly ReactiveProperty<IMarkerState> state;
 
         public MarkerModel(IMarkerState state)
         {
-            this.State = new ReactiveProperty<IMarkerState>(state);
+            this.state = new ReactiveProperty<IMarkerState>(state);
         }
 
         public void Complete()
         {
-            this.State.Value = this.State.Value.Complete();
+            this.state.Value = this.state.Value.Complete();
         }
 
         public void Unlock()
         {
-            this.State.Value = this.State.Value.Unlock();
+            this.state.Value = this.state.Value.Unlock();
         }
 
         protected MarkerModel(SerializationInfo info, StreamingContext context)
         {
-            var state = (IMarkerState)info.GetValue(nameof(this.State), typeof(IMarkerState));
-            this.State = new ReactiveProperty<IMarkerState>(state);
+            var state = (IMarkerState)info.GetValue(nameof(this.state), typeof(IMarkerState));
+            this.state = new ReactiveProperty<IMarkerState>(state);
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue(nameof(this.State), this.State.Value, typeof(IMarkerState));
+            info.AddValue(nameof(this.state), this.state.Value, typeof(IMarkerState));
         }
     }
 }
