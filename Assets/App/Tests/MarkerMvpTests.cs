@@ -10,6 +10,9 @@ namespace SpaceShooterPlusTests
     [TestFixture]
     internal class MarkerMvpTests
     {
+        /// <summary>
+        /// Model state should change when model requests.
+        /// </summary>
         [Test]
         public void ModelStateChangesAreVisible()
         {
@@ -24,6 +27,9 @@ namespace SpaceShooterPlusTests
             Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateCompleted)));
         }
 
+        /// <summary>
+        /// Model state changes should be observable.
+        /// </summary>
         [Test]
         public void ModelStateChangesAreObservable()
         {
@@ -42,6 +48,9 @@ namespace SpaceShooterPlusTests
             Assert.That(callCount, Is.EqualTo(3));
         }
 
+        /// <summary>
+        /// Views should require Button component.
+        /// </summary>
         [Test]
         public void ViewRequiresButtonComponent()
         {
@@ -52,6 +61,9 @@ namespace SpaceShooterPlusTests
             Assert.That(button, Is.Not.Null);
         }
 
+        /// <summary>
+        /// Views should initialize Button field.
+        /// </summary>
         [Test]
         public void ViewInitializesButtonField()
         {
@@ -62,6 +74,9 @@ namespace SpaceShooterPlusTests
             Assert.That(button, Is.Not.Null);
         }
 
+        /// <summary>
+        /// Presenter should reflect Model's current state on a View.
+        /// </summary>
         [Test]
         public void PresenterConnectsModelStateAndView()
         {
@@ -84,6 +99,9 @@ namespace SpaceShooterPlusTests
             Assert.That(view.Button.colors.highlightedColor, Is.EqualTo(Color.yellow));
         }
 
+        /// <summary>
+        /// View buttons should be clickable.
+        /// </summary>
         [Test]
         public void ViewButtonsAreClickable()
         {
@@ -97,6 +115,9 @@ namespace SpaceShooterPlusTests
             Assert.That(callCount, Is.EqualTo(1));
         }
 
+        /// <summary>
+        /// View buttons' clicks should be observable.
+        /// </summary>
         [Test]
         public void ViewButtonsClicksAreObservable()
         {

@@ -81,6 +81,9 @@ namespace SpaceShooterPlusTests
             Assert.That(view.MarkerViews.Count, Is.EqualTo(2));
         }
 
+        /// <summary>
+        /// Presenter should connect Model's and View's children.
+        /// </summary>
         [Test]
         public void PresenterConnectsModelAndView()
         {
@@ -103,6 +106,9 @@ namespace SpaceShooterPlusTests
             Assert.That(markerView.Button.interactable, Is.False);
         }
 
+        /// <summary>
+        /// Presenter should reflect changes in the Model to the View.
+        /// </summary>
         [Test]
         public void PresenterConnectsModelAndViewChange()
         {
@@ -134,6 +140,11 @@ namespace SpaceShooterPlusTests
             Assert.That(markerView.Button.colors.highlightedColor, Is.EqualTo(Color.yellow));
         }
 
+        /// <summary>
+        /// Presenter should connect Model and View even if
+        /// their children are added after the Presenter's creation.
+        /// </summary>
+        /// <remarks>Currently Presenter doesn't work that way.</remarks>
         [Test]
         public void PresenterConnectsModelAndViewLateAdd()
         {
@@ -155,6 +166,9 @@ namespace SpaceShooterPlusTests
             Assert.That(markerView.Button.interactable, Is.True);
         }
 
+        /// <summary>
+        /// Presenter should see clicks in every button of its View's children.
+        /// </summary>
         [Test]
         public void PresenterListensToAllButtons()
         {
