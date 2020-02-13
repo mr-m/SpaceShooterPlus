@@ -84,13 +84,10 @@ namespace SpaceShooterPlusTests
         }
 
         [Test]
-        public void PresenterReactsToClicks()
+        public void ViewButtonsAreClickable()
         {
             var gameObject = new GameObject();
             var view = gameObject.AddComponent<MarkerView>();
-            var model = new MarkerModel(new MarkerStateUnlocked());
-
-            var presenter = new MarkerPresenter(view, model);
 
             int callCount = 0;
             view.Button.onClick.AddListener(() => callCount++);
@@ -100,17 +97,13 @@ namespace SpaceShooterPlusTests
         }
 
         [Test]
-        public void PresenterClicksAreObservable()
+        public void ViewButtonsClicksAreObservable()
         {
             var gameObject = new GameObject();
             var view = gameObject.AddComponent<MarkerView>();
-            var model = new MarkerModel(new MarkerStateUnlocked());
-
-            var presenter = new MarkerPresenter(view, model);
 
             int callCount = 0;
-            view.Button.OnClickAsObservable()
-                .Subscribe(_ => callCount++);
+            view.Button.OnClickAsObservable().Subscribe(_ => callCount++);
 
             view.Button.onClick.Invoke();
             Assert.That(callCount, Is.EqualTo(1));
