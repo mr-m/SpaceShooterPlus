@@ -9,15 +9,15 @@ namespace SpaceShooterPlus.MarkerMvp
 {
     public class MarkerPresenter
     {
-        private MarkerView View;
-        private MarkerModel Model;
+        private readonly MarkerView view;
+        private readonly MarkerModel model;
 
         public IObservable<MarkerModel> OnButtonClickAsObservable;
 
-        public MarkerPresenter(MarkerView view, MarkerModel model)
+        public MarkerPresenter(MarkerView markerView, MarkerModel markerModel)
         {
-            this.View = view;
-            this.Model = model;
+            this.view = markerView;
+            this.model = markerModel;
 
             Debug.Log($"{nameof(MarkerPresenter)}.{nameof(MarkerPresenter)}()");
 
@@ -26,23 +26,23 @@ namespace SpaceShooterPlus.MarkerMvp
                 [typeof(MarkerStateLocked)] = () =>
                 {
                     Debug.Log($"case {nameof(MarkerStateLocked)}");
-                    this.View.Button.interactable = false;
+                    this.view.Button.interactable = false;
                 },
                 [typeof(MarkerStateUnlocked)] = () =>
                 {
                     Debug.Log($"case {nameof(MarkerStateUnlocked)}");
-                    this.View.Button.interactable = true;
+                    this.view.Button.interactable = true;
                 },
                 [typeof(MarkerStateCompleted)] = () =>
                 {
                     Debug.Log($"case {nameof(MarkerStateCompleted)}");
-                    ColorBlock colors = this.View.Button.colors;
+                    ColorBlock colors = this.view.Button.colors;
                     colors.normalColor = Color.red;
-                    this.View.Button.colors = colors;
+                    this.view.Button.colors = colors;
                 }
             };
 
-            this.Model.State.Subscribe(x =>
+            this.model.State.Subscribe(x =>
             {
                 //Debug.Log(x.GetType());
                 //Debug.Log(typeof(MarkerStateUnlocked));
@@ -50,9 +50,9 @@ namespace SpaceShooterPlus.MarkerMvp
                 dict[x.GetType()]();
             });
 
-            this.OnButtonClickAsObservable = this.View.Button
+            this.OnButtonClickAsObservable = this.view.Button
                 .OnClickAsObservable()
-                .Select(_ => this.Model);
+                .Select(_ => this.model);
         }
     }
 }
