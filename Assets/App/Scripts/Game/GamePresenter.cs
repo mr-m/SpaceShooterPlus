@@ -40,32 +40,70 @@ namespace SpaceShooterPlus.GameMvp
             this.mapModel = mapModel;
 
             mapPresenter.OnButtonClickAsObservable
-                .Subscribe(async x =>
+                .Subscribe(x => LoadFightSceneAsync(x));
+        }
+
+        private async System.Threading.Tasks.Task LoadFightSceneAsync(MarkerModel markerModel)
+        {
+            await SceneManager.LoadSceneAsync("FightScene").AsObservable();
+
+            var index = mapModel.MarkerModels.IndexOf(markerModel);
+            int requiredScore = 5 + (3 * index);
+            int initialHealth = 3;
+
+            var levelManager = FindObjectOfType<LevelManager>();
+            levelManager.RequiredScore = requiredScore;
+            levelManager.InitialHealth = initialHealth;
+
+            levelManager.OnButtonClickAsObservable
+                .Subscribe(x => LoadMapSceneAsync(markerModel, x));
+
+            levelManager.OnButtonClickAsObservable
+                .Subscribe(_ => Debug.Log($"{nameof(GamePresenter)}.{nameof(levelManager.OnButtonClickAsObservable)}"));
+        }
+
+        private async System.Threading.Tasks.Task LoadMapSceneAsync(MarkerModel markerModel, LevelModel levelModel)
+        {
+            await SceneManager.LoadSceneAsync("MapScene").AsObservable();
+
+            var mapView = FindObjectOfType<MapView>();
+            var mapModel = this.mapModel;
+
+            if (levelModel != null)
+            {
+                bool isVictory = levelModel.IsVictory.Value;
+
+                var markerState = markerModel.State.Value.GetType();
+                bool markerAlreadyCompleted = markerState == typeof(MarkerStateCompleted);
+
+                if (isVictory && !markerAlreadyCompleted)
                 {
-                    Debug.Log($"{nameof(mapPresenter.OnButtonClickAsObservable)} {x}");
+                    var currMarker = markerModel;
+                    var currMarkerIndex = mapModel.MarkerModels.IndexOf(currMarker);
 
-                    await SceneManager.LoadSceneAsync("FightScene").AsObservable();
+                    Debug.Log($"{currMarker} {currMarkerIndex} Unlocked -> Completed");
+                    currMarker.Complete();
 
-                    var index = mapModel.MarkerModels.IndexOf(x);
-                    int requiredScore = 5 + (3 * index);
-                    int initialHealth = 3;
+                    var nextMarkerIndex = currMarkerIndex + 1;
+                    if (nextMarkerIndex <= mapModel.MarkerModels.Count)
+                    {
+                        var nextMarker = mapModel.MarkerModels[nextMarkerIndex];
 
-                    var levelManager = FindObjectOfType<LevelManager>();
-                    levelManager.RequiredScore = requiredScore;
-                    levelManager.InitialHealth = initialHealth;
+                        Debug.Log($"{nextMarker} {nextMarkerIndex} Locked -> Unlocked");
+                        nextMarker.Unlock();
+                    }
+                }
+            }
 
-                    levelManager.OnButtonClickAsObservable
-                        .Subscribe(y =>
-                        {
-                            SceneManager.UnloadSceneAsync("FightScene");
-                            x.Complete();
-                        });
+            var mapPresenter = new MapPresenter(mapView, mapModel);
 
-                    //var levelView = FindObjectOfType<LevelView>();
-                    //var levelModel = new LevelModel(requiredScore, initialHealth);
-                    //var levelPresenter = new LevelPresenter(levelView, levelModel);
-                });
+            this.mapModel = mapModel;
 
+            mapPresenter.OnButtonClickAsObservable
+                .Subscribe(x => LoadFightSceneAsync(x));
+
+            mapPresenter.OnButtonClickAsObservable
+                .Subscribe(_ => Debug.Log($"{nameof(GamePresenter)}.{nameof(mapPresenter.OnButtonClickAsObservable)}"));
         }
 
         private void OnDestroy()
