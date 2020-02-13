@@ -30,7 +30,7 @@ namespace SpaceShooterPlus.MapMvp
 
             this.OnButtonClickAsObservable = zip
                 .Select(x => x.OnButtonClickAsObservable)
-                .Concat();
+                .Merge();
 
             zip.Subscribe();
         }

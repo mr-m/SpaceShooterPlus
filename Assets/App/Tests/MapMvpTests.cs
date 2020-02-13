@@ -3,6 +3,7 @@ using SpaceShooterPlus;
 using SpaceShooterPlus.MapMvp;
 using SpaceShooterPlus.MarkerMvp;
 using SpaceShooterPlus.MarkerStates;
+using UniRx;
 using UnityEngine;
 
 namespace SpaceShooterPlusTests
@@ -151,6 +152,44 @@ namespace SpaceShooterPlusTests
 
             //TODO: Button should become disabled
             Assert.That(markerView.Button.interactable, Is.True);
+        }
+
+        [Test]
+        public void PresenterListensToAllButtons()
+        {
+            var mapModel = new MapModel();
+            var parent = new GameObject();
+            var mapView = parent.AddComponent<MapView>();
+
+            //Add a child with a MarkerView component
+            var child1 = new GameObject();
+            child1.AddComponent<MarkerView>();
+            child1.transform.parent = parent.transform;
+
+            //Add a child with a MarkerView component
+            var child2 = new GameObject();
+            child2.AddComponent<MarkerView>();
+            child2.transform.parent = parent.transform;
+
+            //Add a MarkerModel model
+            mapModel.MarkerModels.Add(new MarkerModel(new MarkerStateCompleted()));
+            mapModel.MarkerModels.Add(new MarkerModel(new MarkerStateUnlocked()));
+
+            var presenter = new MapPresenter(mapView, mapModel);
+
+            int callCount = 0;
+            presenter.OnButtonClickAsObservable.Subscribe(_ => callCount++);
+
+            //Click twice on the first button
+            mapView.MarkerViews[0].Button.onClick.Invoke();
+            Assert.That(callCount, Is.EqualTo(1));
+
+            mapView.MarkerViews[0].Button.onClick.Invoke();
+            Assert.That(callCount, Is.EqualTo(2));
+
+            //Click once on the second button
+            mapView.MarkerViews[1].Button.onClick.Invoke();
+            Assert.That(callCount, Is.EqualTo(3));
         }
     }
 }
