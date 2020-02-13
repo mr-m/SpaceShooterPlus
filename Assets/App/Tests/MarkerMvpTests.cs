@@ -80,7 +80,8 @@ namespace SpaceShooterPlusTests
 
             model.Complete();
             Assert.That(view.Button.interactable, Is.True);
-            Assert.That(view.Button.colors.normalColor, Is.EqualTo(Color.red));
+            Assert.That(view.Button.colors.normalColor, Is.EqualTo(Color.yellow));
+            Assert.That(view.Button.colors.highlightedColor, Is.EqualTo(Color.yellow));
         }
 
         [Test]

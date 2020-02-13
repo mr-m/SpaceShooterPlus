@@ -130,7 +130,8 @@ namespace SpaceShooterPlusTests
 
             markerModel.Complete();
             Assert.That(markerView.Button.interactable, Is.True);
-            Assert.That(markerView.Button.colors.normalColor, Is.EqualTo(Color.red));
+            Assert.That(markerView.Button.colors.normalColor, Is.EqualTo(Color.yellow));
+            Assert.That(markerView.Button.colors.highlightedColor, Is.EqualTo(Color.yellow));
         }
 
         [Test]

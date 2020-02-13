@@ -37,7 +37,8 @@ namespace SpaceShooterPlus.MarkerMvp
                 {
                     Debug.Log($"case {nameof(MarkerStateCompleted)}");
                     ColorBlock colors = this.view.Button.colors;
-                    colors.normalColor = Color.red;
+                    colors.normalColor = Color.yellow;
+                    colors.highlightedColor = Color.yellow;
                     this.view.Button.colors = colors;
                 }
             };
