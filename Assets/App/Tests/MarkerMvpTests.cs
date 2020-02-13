@@ -11,22 +11,34 @@ namespace SpaceShooterPlusTests
     internal class MarkerMvpTests
     {
         [Test]
+        public void ModelStateChangesAreVisible()
+        {
+            var model = new MarkerModel(new MarkerStateLocked());
+
+            Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateLocked)));
+
+            model.Unlock();
+            Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateUnlocked)));
+
+            model.Complete();
+            Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateCompleted)));
+        }
+
+        [Test]
         public void ModelStateChangesAreObservable()
         {
             var model = new MarkerModel(new MarkerStateLocked());
+
             Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateLocked)));
 
             var callCount = 0;
             model.State.Subscribe(_ => callCount++);
-            Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateLocked)));
             Assert.That(callCount, Is.EqualTo(1));
 
             model.Unlock();
-            Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateUnlocked)));
             Assert.That(callCount, Is.EqualTo(2));
 
             model.Complete();
-            Assert.That(model.State.Value, Is.TypeOf(typeof(MarkerStateCompleted)));
             Assert.That(callCount, Is.EqualTo(3));
         }
 
