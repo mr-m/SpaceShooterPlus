@@ -1,6 +1,7 @@
 using System.Collections;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.Events;
@@ -63,7 +64,7 @@ namespace SpaceShooterPlus.GameMvp
             };
         }
 
-        private async System.Threading.Tasks.Task LoadFightSceneAsync(MarkerModel markerModel)
+        private async Task LoadFightSceneAsync(MarkerModel markerModel)
         {
             var unityAction = this.CreateActionOnSceneLoaded(markerModel);
 
@@ -80,7 +81,7 @@ namespace SpaceShooterPlus.GameMvp
                 .Subscribe(_ => Debug.Log($"{nameof(GamePresenter)}.{nameof(levelManager.OnButtonClickAsObservable)}"));
         }
 
-        private async System.Threading.Tasks.Task LoadMapSceneAsync(MarkerModel markerModel, LevelModel levelModel)
+        private async Task LoadMapSceneAsync(MarkerModel markerModel, LevelModel levelModel)
         {
             await SceneManager.LoadSceneAsync("MapScene").AsObservable();
 
