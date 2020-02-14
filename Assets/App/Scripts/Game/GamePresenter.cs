@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 using UniRx;
@@ -43,17 +44,34 @@ namespace SpaceShooterPlus.GameMvp
                 .Subscribe(x => LoadFightSceneAsync(x));
         }
 
+        private UnityAction<Scene, LoadSceneMode> CreateActionOnSceneLoaded(MarkerModel markerModel)
+        {
+            return delegate (Scene scene, LoadSceneMode mode)
+            {
+                if (!scene.isLoaded)
+                {
+                    return;
+                }
+
+                var index = mapModel.MarkerModels.IndexOf(markerModel);
+                int requiredScore = 5 + (3 * index);
+                int initialHealth = 3;
+
+                var levelManager = FindObjectOfType<LevelManager>();
+                levelManager.RequiredScore = requiredScore;
+                levelManager.InitialHealth = initialHealth;
+            };
+        }
+
         private async System.Threading.Tasks.Task LoadFightSceneAsync(MarkerModel markerModel)
         {
-            await SceneManager.LoadSceneAsync("FightScene").AsObservable();
+            var unityAction = this.CreateActionOnSceneLoaded(markerModel);
 
-            var index = mapModel.MarkerModels.IndexOf(markerModel);
-            int requiredScore = 5 + (3 * index);
-            int initialHealth = 3;
+            SceneManager.sceneLoaded += unityAction;
+            await SceneManager.LoadSceneAsync("FightScene").AsObservable();
+            SceneManager.sceneLoaded -= unityAction;
 
             var levelManager = FindObjectOfType<LevelManager>();
-            levelManager.RequiredScore = requiredScore;
-            levelManager.InitialHealth = initialHealth;
 
             levelManager.OnButtonClickAsObservable
                 .Subscribe(x => LoadMapSceneAsync(markerModel, x));
